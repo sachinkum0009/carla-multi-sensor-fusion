@@ -29,15 +29,17 @@ ros2 launch carla_ros_bridge carla_ros_bridge.launch.py
 
 # Option 2, start the ROS bridge with an example ego vehicle
 ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
+
+
 ```
 
 ### Available sensors for fusion
 
-1. Lidar
-2. GPS
-3. Odometry
-4. Camera 
-5. IMU
+1. Lidar (point cloud data ) -> (x, y) (improvize)
+2. GPS (lat long) -> (x, y) (low accuracy)
+3. Odometry -> (x, y) (random noise)
+4. Camera -> (x, y)
+5. IMU -> (euler, yaw, pitch , roll)
 
 
 ## Sensor Fusion
@@ -58,4 +60,6 @@ ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
 
 ## Due Date
 
-September 30
+- September 12 
+
+- September 30
