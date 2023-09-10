@@ -3,15 +3,89 @@
 namespace scan_matching
 {
     
-    ScanMatching::ScanMatching() : Node("scan_matching") {
-        _scanSub = this->create_subscription<sensor_msgs::msg::LaserScan>("/carla/ego_vehicle/scan", 10, std::bind(&ScanMatching::scanCallback, this, std::placeholders::_1));
+    ScanMatching::ScanMatching() : Node("scan_matching"), _cloud(new pcl::PointCloud<pcl::PointXYZ>), _prevCloud(new pcl::PointCloud<pcl::PointXYZ>), _initializePointCloud(false), setOdomOffset(false) {
+        // Initialize the ICP registration
+        _icp.setMaxCorrespondenceDistance(100); // Maximum distance for point correspondences
+        _icp.setMaximumIterations(50);           // Maximum number of iterations
 
+        _icp.setTransformationEpsilon(1e-2);
+        _icp.setEuclideanFitnessEpsilon(1e-6);
+        _icp.setRANSACIterations(40);
+
+        
+        
+        _odomPub = this->create_publisher<nav_msgs::msg::Odometry>("/lidar_odom", 10);
+        _scanSub = this->create_subscription<sensor_msgs::msg::PointCloud2>("/carla/ego_vehicle/lidar", 10, std::bind(&ScanMatching::scanCallback, this, std::placeholders::_1));
+        _odomSub = this->create_subscription<nav_msgs::msg::Odometry>("/carla/ego_vehicle/odometry", 10, std::bind(&ScanMatching::odomCallback, this, std::placeholders::_1));
+        
     }
     ScanMatching::~ScanMatching() {}
 
-    void ScanMatching::scanCallback(const sensor_msgs::msg::LaserScan::SharedPtr scan_msg) const {
-        RCLCPP_INFO(this->get_logger(), "I got scan message");
-        RCLCPP_INFO(this->get_logger(), "laser size is: %d", scan_msg->ranges.size());
+    void ScanMatching::odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg) {
+        if (!setOdomOffset) {
+            x_offset = msg->pose.pose.position.x;
+            y_offset = msg->pose.pose.position.y;
+            setOdomOffset = true;
+        }
+        else {
+            _prevOdometryMsg.pose = msg->pose;
+        }
+        
+    }
+
+
+    void ScanMatching::scanCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
+        // RCLCPP_INFO(this->get_logger(), "I got scan message");
+        // RCLCPP_INFO(this->get_logger(), "laser size is: %d", scan_msg->ranges.size());
+        // if (!_initializePointCloud) {
+        //     // Convert ROS PointCloud2 to PCL PointCloud
+        //     pcl::fromROSMsg(*msg, *_prevCloud);
+        // }
+        // Convert ROS PointCloud2 to PCL PointCloud
+        pcl::fromROSMsg(*msg, *_cloud);
+        // If it's the first point cloud received, store it as the previous cloud
+        if (!_prevCloud->size()) {
+            *_prevCloud = *_cloud;
+            return;
+        }
+
+
+        _icp.setInputSource(_cloud);             // Set the source point cloud (current frame)
+        _icp.setInputTarget(_prevCloud);        // Set the target point cloud (previous frame)
+        
+        // Perform ICP registration to estimate transformation (motion)
+        _icp.align(_alignedCloud);
+
+        // Get the estimated transformation
+        _transformation = _icp.getFinalTransformation();
+
+        // Extract translation and rotation components from the transformation matrix
+        _translation += _transformation.block<3, 1>(0, 3);
+        _rotation += _transformation.block<3, 3>(0, 0);
+
+        RCLCPP_INFO(this->get_logger(), "translation x: %f, original x: %f", _translation.x(), _prevOdometryMsg.pose.pose.position.x - x_offset);
+        RCLCPP_INFO(this->get_logger(), "translation y: %f, orignal y: %f", _translation.y(), _prevOdometryMsg.pose.pose.position.y - y_offset);
+
+        // Add odometry message
+        _odometryMsg.header = msg->header;
+        _odometryMsg.pose.pose.position.x = _translation.x();
+        _odometryMsg.pose.pose.position.y = _translation.y();
+        // _odometryMsg.pose.pose.position.z = _translation.z();
+
+        // Convert the rotation matrix to a quaternion and set it in the odometry message
+        Eigen::Quaternionf quaternion(_rotation);
+        _odometryMsg.pose.pose.orientation.x = quaternion.x();
+        _odometryMsg.pose.pose.orientation.y = quaternion.y();
+        _odometryMsg.pose.pose.orientation.z = quaternion.z();
+        _odometryMsg.pose.pose.orientation.w = quaternion.w();
+
+        // Publish the odometry message
+        _odomPub->publish(_odometryMsg);
+
+        // Update the previous point cloud for the next iteration
+        *_prevCloud = *_cloud;
+
+
         
 
     }
