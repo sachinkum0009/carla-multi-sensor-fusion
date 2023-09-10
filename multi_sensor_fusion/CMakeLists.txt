@@ -25,12 +25,25 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(pcl_ros REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(Eigen3 REQUIRED)
 
-include_directories(include)
+include_directories(
+  include
+  ${EIGEN3_INCLUDE_DIRS}
+  )
 
 # compile here
 add_executable(scan_matching src/scan_matching.cpp)
 ament_target_dependencies(scan_matching rclcpp sensor_msgs pcl_ros pcl_conversions nav_msgs geometry_msgs)
+
+add_executable(odometry_fusion src/odometry_fusion.cpp)
+ament_target_dependencies(odometry_fusion rclcpp sensor_msgs nav_msgs geometry_msgs)
+
+add_executable(gps_odom src/gps_odom.cpp)
+ament_target_dependencies(gps_odom rclcpp sensor_msgs nav_msgs geometry_msgs ${EIGEN3_LIBRARIES})
 
 install(TARGETS
   scan_matching
