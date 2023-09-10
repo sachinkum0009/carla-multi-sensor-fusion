@@ -21,12 +21,16 @@ find_package(ament_cmake REQUIRED)
 # further dependencies manually.
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(pcl_ros REQUIRED)
 
 include_directories(include)
 
 # compile here
 add_executable(scan_matching src/scan_matching.cpp)
-ament_target_dependencies(scan_matching rclcpp sensor_msgs)
+ament_target_dependencies(scan_matching rclcpp sensor_msgs pcl_ros pcl_conversions nav_msgs geometry_msgs)
 
 install(TARGETS
   scan_matching
