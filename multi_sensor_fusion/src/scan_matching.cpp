@@ -6,7 +6,7 @@ namespace scan_matching
     ScanMatching::ScanMatching() : Node("scan_matching"), _cloud(new pcl::PointCloud<pcl::PointXYZ>), _prevCloud(new pcl::PointCloud<pcl::PointXYZ>), _initializePointCloud(false), setOdomOffset(false) {
         // Initialize the ICP registration
         _icp.setMaxCorrespondenceDistance(100); // Maximum distance for point correspondences
-        _icp.setMaximumIterations(50);           // Maximum number of iterations
+        _icp.setMaximumIterations(200);           // Maximum number of iterations
 
         _icp.setTransformationEpsilon(1e-2);
         _icp.setEuclideanFitnessEpsilon(1e-6);
@@ -15,6 +15,7 @@ namespace scan_matching
         
         
         _odomPub = this->create_publisher<nav_msgs::msg::Odometry>("/lidar_odom", 10);
+        _alignedPointCloudPub = this->create_publisher<sensor_msgs::msg::PointCloud2>("/aligned_pc", 10);
         _scanSub = this->create_subscription<sensor_msgs::msg::PointCloud2>("/carla/ego_vehicle/lidar", 10, std::bind(&ScanMatching::scanCallback, this, std::placeholders::_1));
         _odomSub = this->create_subscription<nav_msgs::msg::Odometry>("/carla/ego_vehicle/odometry", 10, std::bind(&ScanMatching::odomCallback, this, std::placeholders::_1));
         
@@ -55,6 +56,8 @@ namespace scan_matching
         
         // Perform ICP registration to estimate transformation (motion)
         _icp.align(_alignedCloud);
+        pcl::toROSMsg(_alignedCloud, _pointCloudMsg);
+        _alignedPointCloudPub->publish(_pointCloudMsg);
 
         // Get the estimated transformation
         _transformation = _icp.getFinalTransformation();
