@@ -19,6 +19,11 @@ namespace scan_matching
         _scanSub = this->create_subscription<sensor_msgs::msg::PointCloud2>("/carla/ego_vehicle/lidar", 10, std::bind(&ScanMatching::scanCallback, this, std::placeholders::_1));
         _odomSub = this->create_subscription<nav_msgs::msg::Odometry>("/carla/ego_vehicle/odometry", 10, std::bind(&ScanMatching::odomCallback, this, std::placeholders::_1));
         
+        _odometryMsg.header.frame_id = "odom";
+        _odometryMsg.child_frame_id = "base_link";
+
+        
+        timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ScanMatching::publishOdom, this));
     }
     ScanMatching::~ScanMatching() {}
 
@@ -66,11 +71,11 @@ namespace scan_matching
         _translation += _transformation.block<3, 1>(0, 3);
         _rotation += _transformation.block<3, 3>(0, 0);
 
-        RCLCPP_INFO(this->get_logger(), "translation x: %f, original x: %f", _translation.x(), _prevOdometryMsg.pose.pose.position.x - x_offset);
-        RCLCPP_INFO(this->get_logger(), "translation y: %f, orignal y: %f", _translation.y(), _prevOdometryMsg.pose.pose.position.y - y_offset);
+        RCLCPP_INFO(this->get_logger(), "translation x: %f, original x: %f", _translation.x(), (_prevOdometryMsg.pose.pose.position.x - x_offset)/10.0f);
+        RCLCPP_INFO(this->get_logger(), "translation y: %f, orignal y: %f", _translation.y(), (_prevOdometryMsg.pose.pose.position.y - y_offset)/10.0f);
 
         // Add odometry message
-        _odometryMsg.header = msg->header;
+        // _odometryMsg.header = msg->header;
         _odometryMsg.pose.pose.position.x = _translation.x();
         _odometryMsg.pose.pose.position.y = _translation.y();
         // _odometryMsg.pose.pose.position.z = _translation.z();
@@ -82,14 +87,18 @@ namespace scan_matching
         _odometryMsg.pose.pose.orientation.z = quaternion.z();
         _odometryMsg.pose.pose.orientation.w = quaternion.w();
 
-        // Publish the odometry message
-        _odomPub->publish(_odometryMsg);
-
         // Update the previous point cloud for the next iteration
         *_prevCloud = *_cloud;
 
 
         
+
+    }
+
+    void ScanMatching::publishOdom() {
+        // Publish the odometry message
+        _odometryMsg.header.stamp = this->get_clock()->now();
+        _odomPub->publish(_odometryMsg);
 
     }
 } // namespace scan_matching

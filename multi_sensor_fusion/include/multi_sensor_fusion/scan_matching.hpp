@@ -37,6 +37,12 @@ private:
     Eigen::Matrix3f _rotation;
     nav_msgs::msg::Odometry _odometryMsg, _prevOdometryMsg;
     sensor_msgs::msg::PointCloud2 _pointCloudMsg;
+    rclcpp::TimerBase::SharedPtr timer_;
+
+    /**
+     * Function used to publish the odometry
+    */
+    void publishOdom();
 
     void scanCallback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
     void odomCallback(const nav_msgs::msg::Odometry::SharedPtr msg);
