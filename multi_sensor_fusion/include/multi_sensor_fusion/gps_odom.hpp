@@ -5,8 +5,11 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <cmath>
 
+
+
 namespace gps_odom
 {
+    
     class GpsOdom : public rclcpp::Node {
     // Define constants for Mercator projection
     const double EARTH_RADIUS = 6371000.0; // Earth's radius in meters
@@ -21,6 +24,8 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
 
     nav_msgs::msg::Odometry _odomMsg;
+    double _initial_x, _initial_y;
+    bool _odomInitialized;
 
     /**
      * Function used to publish the odometry
