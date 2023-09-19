@@ -47,6 +47,8 @@ ament_target_dependencies(gps_odom rclcpp sensor_msgs nav_msgs geometry_msgs ${E
 
 install(TARGETS
   scan_matching
+  gps_odom
+  odometry_fusion
   DESTINATION lib/${PROJECT_NAME})
 
 
