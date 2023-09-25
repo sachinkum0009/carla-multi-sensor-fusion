@@ -20,7 +20,7 @@ public:
     
 private:
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr _scanSub;
-    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odomPub;
+    rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr _odomPub, _relativeOdomPub;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr _odomSub;
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr _alignedPointCloudPub;
 
@@ -35,7 +35,7 @@ private:
     Eigen::Matrix4f _transformation;
     Eigen::Vector3f _translation;
     Eigen::Matrix3f _rotation;
-    nav_msgs::msg::Odometry _odometryMsg, _prevOdometryMsg;
+    nav_msgs::msg::Odometry _odometryMsg, _prevOdometryMsg, _relativeOdomMsg;
     sensor_msgs::msg::PointCloud2 _pointCloudMsg;
     rclcpp::TimerBase::SharedPtr timer_;
 

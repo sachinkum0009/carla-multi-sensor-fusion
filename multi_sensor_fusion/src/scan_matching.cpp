@@ -5,7 +5,7 @@ namespace scan_matching
     
     ScanMatching::ScanMatching() : Node("scan_matching"), _cloud(new pcl::PointCloud<pcl::PointXYZ>), _prevCloud(new pcl::PointCloud<pcl::PointXYZ>), _initializePointCloud(false), setOdomOffset(false) {
         // Initialize the ICP registration
-        _icp.setMaxCorrespondenceDistance(100); // Maximum distance for point correspondences
+        _icp.setMaxCorrespondenceDistance(50); // Maximum distance for point correspondences
         _icp.setMaximumIterations(200);           // Maximum number of iterations
 
         _icp.setTransformationEpsilon(1e-2);
@@ -18,9 +18,13 @@ namespace scan_matching
         _alignedPointCloudPub = this->create_publisher<sensor_msgs::msg::PointCloud2>("/aligned_pc", 10);
         _scanSub = this->create_subscription<sensor_msgs::msg::PointCloud2>("/carla/ego_vehicle/lidar", 10, std::bind(&ScanMatching::scanCallback, this, std::placeholders::_1));
         _odomSub = this->create_subscription<nav_msgs::msg::Odometry>("/carla/ego_vehicle/odometry", 10, std::bind(&ScanMatching::odomCallback, this, std::placeholders::_1));
+        _relativeOdomPub = this->create_publisher<nav_msgs::msg::Odometry>("/relative_odom", 10);
         
         _odometryMsg.header.frame_id = "odom";
         _odometryMsg.child_frame_id = "base_link";
+
+        _relativeOdomMsg.header.frame_id = "odom";
+        _relativeOdomMsg.child_frame_id = "base_link";
 
         
         timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ScanMatching::publishOdom, this));
@@ -98,6 +102,11 @@ namespace scan_matching
     void ScanMatching::publishOdom() {
         // Publish the odometry message
         _odometryMsg.header.stamp = this->get_clock()->now();
+        _relativeOdomMsg.header.stamp = _odometryMsg.header.stamp;
+        _relativeOdomMsg.pose.pose.position.x = (_prevOdometryMsg.pose.pose.position.x - x_offset)/10.0f;
+        _relativeOdomMsg.pose.pose.position.y = (_prevOdometryMsg.pose.pose.position.y - y_offset)/10.0f;
+
+        _relativeOdomPub->publish(_relativeOdomMsg);
         _odomPub->publish(_odometryMsg);
 
     }
