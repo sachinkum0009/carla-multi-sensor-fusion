@@ -30,8 +30,27 @@ ros2 launch carla_ros_bridge carla_ros_bridge.launch.py
 # Option 2, start the ROS bridge with an example ego vehicle
 ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
 
+# for scan matching point cloud odom
+ros2 launch multi_sensor_fusion scan_matching.launch.py
+
+# for gps to odom
+ros2 launch multi_sensor_fusion gps_odom.launch.py
+
+# for odom fusion
+ros2 launch multi_sensor_fusion odom_fusion.launch.py
+
+# for plot juggler
+ros2 launch multi_sensor_fusion plot_juggler.launch.py
 
 ```
+
+## ROS2 Graph
+
+![ROS2 Graph](rosgraph.png)
+
+## Sensor Fusion EKF
+
+![Sensor Fusion](sensor_fusion.gif)
 
 ### Available sensors for fusion
 
@@ -42,9 +61,10 @@ ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
 5. IMU -> (euler, yaw, pitch , roll)
 
 
+
 ## Sensor Fusion
 
-1. Kalman Filter 
+1. Kalman Filter (ekf)
 
 
 ## Collison Track
@@ -53,13 +73,3 @@ ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
 
 ## Predict position using sensor fusion
 
-## Tasks
-
-1. Jupyter notebook for Collision Detection Prediction using Lidar
-2. Create a scenario 
-
-## Due Date
-
-- September 12 
-
-- September 30
