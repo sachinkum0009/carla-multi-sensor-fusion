@@ -1,4 +1,4 @@
-# ROS/ROS2 bridge for CARLA simulator
+# Carla Multi Sensor Fusion
 
 [![Actions Status](https://github.com/carla-simulator/ros-bridge/workflows/CI/badge.svg)](https://github.com/carla-simulator/ros-bridge)
 [![Documentation](https://readthedocs.org/projects/carla/badge/?version=latest)](http://carla.readthedocs.io)
@@ -7,9 +7,7 @@
 
  This ROS package is a bridge that enables two-way communication between ROS and CARLA. The information from the CARLA server is translated to ROS topics. In the same way, the messages sent between nodes in ROS get translated to commands to be applied in CARLA.
 
-![rviz setup](./docs/images/ad_demo.png "AD Demo")
 
-**This version requires CARLA 0.9.13**
 
 ## Features
 
@@ -18,10 +16,7 @@
 - Control AD Agents (Steer/Throttle/Brake)
 - Control CARLA (Play/pause simulation, Set simulation parameters)
 
-## Getting started and documentation
-
-Installation instructions and further documentation of the ROS bridge and additional packages are found [__here__](https://carla.readthedocs.io/projects/ros-bridge/en/latest/).
-
+## Commands
 
 ```bash
 # Option 1, start the basic ROS bridge package
