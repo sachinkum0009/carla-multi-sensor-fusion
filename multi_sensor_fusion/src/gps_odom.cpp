@@ -8,6 +8,7 @@ namespace gps_odom
         _odomMsg.header.frame_id = "odom";
         _odomMsg.child_frame_id = "base_link";
         timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&GpsOdom::publishOdom, this));
+        std::srand(std::time(nullptr));
     }
     GpsOdom::~GpsOdom() {
 
@@ -24,12 +25,17 @@ namespace gps_odom
 
     void GpsOdom::convertLatLng2XYCoord(const double lat, const double lng, double& x, double& y) {
         // Convert latitude and longitude to meters using Mercator projection
-        x = lng * METERS_PER_DEGREE;
-        y = log(tan((90.0 + lat) * M_PI / 360.0)) * EARTH_RADIUS;
+        x = (lng * METERS_PER_DEGREE) / 10.0f;
+        y = (log(tan((90.0 + lat) * M_PI / 360.0)) * EARTH_RADIUS) / 10.0f;
         if (_odomInitialized) {
             x-=_initial_x;
             y-=_initial_y;
         }
+        double noise_x = (std::rand() / (double)RAND_MAX - 0.5) * MAX_NOISE;
+        double noise_y = (std::rand() / (double)RAND_MAX - 0.5) * MAX_NOISE;
+
+        x += noise_x;
+        y += noise_y;
     }
 
     void GpsOdom::publishOdom() {

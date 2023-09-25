@@ -4,7 +4,10 @@
 #include <sensor_msgs/msg/nav_sat_fix.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <cmath>
+#include <cstdlib>
+#include <ctime>
 
+#define MAX_NOISE 0.1
 
 
 namespace gps_odom
