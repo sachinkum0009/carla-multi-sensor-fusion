@@ -22,10 +22,18 @@ namespace odometry_fusion
         rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr fused_odom_pub_;
         nav_msgs::msg::Odometry fused_odom;
 
-        Eigen::Matrix<double, 3, 1> x_;  // State vector [x, y, theta]
-        Eigen::Matrix<double, 3, 3> P_;  // State covariance matrix
-        Eigen::Matrix<double, 3, 3> Q_;  // Process noise covariance
-        Eigen::Matrix<double, 3, 3> R_;  // Measurement noise covariance
+        Eigen::Matrix<double, 3, 1> x_; // State Vector [x, y, theta]
+        Eigen::Matrix<double, 3, 3> P_;
+        Eigen::Matrix<double, 3, 3> Q_;
+        Eigen::Matrix<double, 3, 3> R_;
+         
+        Eigen::Matrix<double, 3, 1> wheelMeasurement, laserMeasurement, gpsMeasurement;
+        Eigen::Matrix<double, 3, 1> xPred;
+        Eigen::Matrix<double, 3, 3> pPred; 
+        Eigen::Matrix<double, 3, 1> wheelMeasurementResidual, laserMeasurementResidual, gpsMeasurementResidual;
+        Eigen::Matrix<double, 3, 3> S_, K_; 
+        Eigen::Matrix<double, 3, 3> H_;
+        
 
         rclcpp::TimerBase::SharedPtr timer_;
 
