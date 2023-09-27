@@ -25,6 +25,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(pcl_ros REQUIRED)
+find_package(carla_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -45,10 +46,14 @@ ament_target_dependencies(odometry_fusion rclcpp sensor_msgs nav_msgs geometry_m
 add_executable(gps_odom src/gps_odom.cpp)
 ament_target_dependencies(gps_odom rclcpp sensor_msgs nav_msgs geometry_msgs ${EIGEN3_LIBRARIES})
 
+add_executable(radar_safety src/radar_safety.cpp)
+ament_target_dependencies(radar_safety rclcpp sensor_msgs nav_msgs geometry_msgs carla_msgs ${EIGEN3_LIBRARIES})
+
 install(TARGETS
   scan_matching
   gps_odom
   odometry_fusion
+  radar_safety
   DESTINATION lib/${PROJECT_NAME})
 
 
