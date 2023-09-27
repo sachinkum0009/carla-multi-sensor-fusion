@@ -9,6 +9,10 @@
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <cstdlib>
+#include <ctime>
+
+#define MAX_NOISE 0.05
 
 
 namespace scan_matching

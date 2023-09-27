@@ -28,6 +28,7 @@ namespace scan_matching
 
         
         timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&ScanMatching::publishOdom, this));
+        std::srand(std::time(nullptr));
     }
     ScanMatching::~ScanMatching() {}
 
@@ -103,8 +104,10 @@ namespace scan_matching
         // Publish the odometry message
         _odometryMsg.header.stamp = this->get_clock()->now();
         _relativeOdomMsg.header.stamp = _odometryMsg.header.stamp;
-        _relativeOdomMsg.pose.pose.position.x = (_prevOdometryMsg.pose.pose.position.x - x_offset)/10.0f;
-        _relativeOdomMsg.pose.pose.position.y = (_prevOdometryMsg.pose.pose.position.y - y_offset)/10.0f;
+        double noise_x = (std::rand() / (double)RAND_MAX - 0.5) * MAX_NOISE;
+        double noise_y = (std::rand() / (double)RAND_MAX - 0.5) * MAX_NOISE;
+        _relativeOdomMsg.pose.pose.position.x = ((_prevOdometryMsg.pose.pose.position.x - x_offset)/10.0f ) + noise_x;
+        _relativeOdomMsg.pose.pose.position.y = ((_prevOdometryMsg.pose.pose.position.y - y_offset)/10.0f ) + noise_y;
 
         _relativeOdomPub->publish(_relativeOdomMsg);
         _odomPub->publish(_odometryMsg);
