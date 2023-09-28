@@ -37,6 +37,8 @@ ros2 launch multi_sensor_fusion odom_fusion.launch.py
 # for plot juggler
 ros2 launch multi_sensor_fusion plot_juggler.launch.py
 
+# for radar safety
+ros2 launch multi_sensor_fusion radar_safety.launch.py
 ```
 
 ## ROS2 Graph
@@ -67,4 +69,3 @@ ros2 launch multi_sensor_fusion plot_juggler.launch.py
 1. If vehicle is coming from the infront then try to predict in how much seconds the collision is going to happen
 
 ## Predict position using sensor fusion
-
