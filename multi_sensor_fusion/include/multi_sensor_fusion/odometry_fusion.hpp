@@ -25,13 +25,13 @@ namespace odometry_fusion
         Eigen::Matrix<double, 3, 1> x_; // State Vector [x, y, theta]
         Eigen::Matrix<double, 3, 3> P_;
         Eigen::Matrix<double, 3, 3> Q_;
-        Eigen::Matrix<double, 3, 3> R_;
+        Eigen::Matrix<double, 3, 3> R1_, R2_, R3_; // R1 -> wheel // R2 -> lidar // R3 -> gps
          
         Eigen::Matrix<double, 3, 1> wheelMeasurement, laserMeasurement, gpsMeasurement;
         Eigen::Matrix<double, 3, 1> xPred;
         Eigen::Matrix<double, 3, 3> pPred; 
         Eigen::Matrix<double, 3, 1> wheelMeasurementResidual, laserMeasurementResidual, gpsMeasurementResidual;
-        Eigen::Matrix<double, 3, 3> S_, K_; 
+        Eigen::Matrix<double, 3, 3> S1_, S2_, S3_, K1_, K2_, K3_; 
         Eigen::Matrix<double, 3, 3> H_;
         
 

@@ -12,7 +12,9 @@ namespace odometry_fusion
         P_ = Eigen::Matrix<double, 3, 3>::Identity();
         P_(2,2) = 0.1;
         Q_ = Eigen::Matrix<double, 3, 3>::Identity() * 0.01;  // Process noise covariance
-        R_ = Eigen::Matrix<double, 3, 3>::Identity() * 0.1;   // Measurement noise covariance
+        R1_ = Eigen::Matrix<double, 3, 3>::Identity() * 0.01;   // Measurement noise covariance for wheel (the wheel odometry has more confidence than rest)
+        R2_ = Eigen::Matrix<double, 3, 3>::Identity() * 0.1;   // Measurement noise covariance for lidar
+        R3_ = Eigen::Matrix<double, 3, 3>::Identity() * 0.1;   // Measurement noise covariance for gps
 
         H_ = Eigen::Matrix<double, 3, 3>::Identity();
 
@@ -42,13 +44,17 @@ namespace odometry_fusion
         laserMeasurementResidual = laserMeasurement - xPred;
         gpsMeasurementResidual = gpsMeasurement - xPred;
 
-        S_ = H_ * pPred * H_.transpose() + R_;
-        K_ = (pPred * H_.transpose()) * S_.inverse();
+        S1_ = H_ * pPred * H_.transpose() + R1_;
+        S2_ = H_ * pPred * H_.transpose() + R2_;
+        S3_ = H_ * pPred * H_.transpose() + R3_;
+        K1_ = (pPred * H_.transpose()) * S1_.inverse();
+        K2_ = (pPred * H_.transpose()) * S2_.inverse();
+        K3_ = (pPred * H_.transpose()) * S3_.inverse();
 
         // RCLCPP_INFO(this->get_logger(), "%f , %f", x_(0), x_(1));
 
-        x_ = xPred + K_ * wheelMeasurementResidual + K_ * laserMeasurementResidual + K_ * gpsMeasurementResidual;
-        P_ = (H_ - (K_* H_)) * pPred;
+        x_ = xPred + K1_ * wheelMeasurementResidual + K2_ * laserMeasurementResidual + K3_ * gpsMeasurementResidual;
+        P_ = (H_ - (K1_* H_)) * pPred;
         
 
         fused_odom.header.stamp = this->now();
