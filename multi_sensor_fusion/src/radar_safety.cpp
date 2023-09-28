@@ -3,7 +3,7 @@
 
 namespace radar_stop
 {
-    RadarStop::RadarStop() : Node("radar_stop"), safetyDistance(10.0f), initializeValues(false) {
+    RadarStop::RadarStop() : Node("radar_stop"), safetyDistance(7.0f), initializeValues(false) {
         _radarPointcloudSub = this->create_subscription<sensor_msgs::msg::PointCloud2>("/carla/ego_vehicle/radar_front", 10, std::bind(&RadarStop::radarCallback, this, std::placeholders::_1));
         _egoControlPub = this->create_publisher<carla_msgs::msg::CarlaEgoVehicleControl>("/carla/ego_vehicle/vehicle_control_cmd", 10);
 
