@@ -16,13 +16,13 @@
 - Control AD Agents (Steer/Throttle/Brake)
 - Control CARLA (Play/pause simulation, Set simulation parameters)
 
-## Commands
+## Commands for Usecase 1
 
 ```bash
-# Option 1, start the basic ROS bridge package
-ros2 launch carla_ros_bridge carla_ros_bridge.launch.py
+# start carla
+cd /opt/Carla; ./Carla.sh
 
-# Option 2, start the ROS bridge with an example ego vehicle
+# start the ROS bridge with an example ego vehicle
 ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
 
 # for scan matching point cloud odom
@@ -36,6 +36,20 @@ ros2 launch multi_sensor_fusion odom_fusion.launch.py
 
 # for plot juggler
 ros2 launch multi_sensor_fusion plot_juggler.launch.py
+```
+## Commands for Usecase 2
+
+```bash
+
+# start carla
+cd /opt/Carla; ./Carla.sh
+
+# start the ROS bridge with an example ego vehicle
+ros2 launch carla_ros_bridge carla_ros_bridge_with_example_ego_vehicle.launch.py
+
+# generate traffic
+cd /opt/Carla/PythonAPI/examples; python generate_traffic.py -n 30
+
 
 # for radar safety
 ros2 launch multi_sensor_fusion radar_safety.launch.py
