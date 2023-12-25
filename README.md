@@ -83,3 +83,51 @@ ros2 launch multi_sensor_fusion radar_safety.launch.py
 1. If vehicle is coming from the infront then try to predict in how much seconds the collision is going to happen
 
 ## Predict position using sensor fusion
+
+## Object Detection
+
+```bash
+conda activate ai
+
+python tools/demo.py --source inference/images
+```
+
+## Commands for object detection and lane segmentation
+
+```bash
+/zenoh-bridge-ros2dds -l tcp/0.0.0.0:7447
+
+
+conda activate ai
+
+python opencv_publisher.py
+
+ros2 run rqt_image_view rqt_image_view
+
+python object_lane_detection_node.py
+```
+
+## Results
+
+```bash
+# with cpu
+
+Done. (2.191s)
+inf : (0.2139s/frame)   nms : (0.0011s/frame)
+
+# with gpu
+Done. (2.041s)
+inf : (0.0525s/frame)   nms : (0.0606s/frame)
+
+
+# video frames
+
+# with gpu
+Done. (44.252s)
+inf : (0.0243s/frame)   nms : (0.0032s/frame)
+
+# with cpu
+Done. (84.558s)
+inf : (0.1766s/frame)   nms : (0.0010s/frame)
+
+```

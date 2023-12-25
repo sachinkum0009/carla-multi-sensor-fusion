@@ -114,7 +114,7 @@ class ObjectLaneDetection(Node):
         _, _, height, width = img.shape
         pad_w = 0
         pad_h = 12
-        ratio = 1.0
+        ratio = 0.5
 
         da_predict = da_seg_out[:, :, pad_h:(height-pad_h),pad_w:(width-pad_w)]
         da_seg_mask = torch.nn.functional.interpolate(da_predict, scale_factor=int(1/ratio), mode='bilinear')

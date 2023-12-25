@@ -3,7 +3,9 @@ from rclpy.node import Node # Handles the creation of nodes
 from sensor_msgs.msg import Image # Image is the message type
 from cv_bridge import CvBridge # Package to convert between ROS and OpenCV Images
 import cv2 # OpenCV library
- 
+
+WIDTH = 1280
+HEIGHT = 720
 class ImagePublisher(Node):
   """
   Create an ImagePublisher class, which is a subclass of the Node class.
@@ -27,6 +29,7 @@ class ImagePublisher(Node):
          
     # Create a VideoCapture object
     # The argument '0' gets the default webcam.
+    # self.cap = cv2.VideoCapture('dc8b39b5-fd030e88.mov')
     self.cap = cv2.VideoCapture('driving_-_800 (360p).mp4')
          
     # Used to convert between ROS and OpenCV images
@@ -41,10 +44,12 @@ class ImagePublisher(Node):
     # This method returns True/False as well
     # as the video frame.
     ret, frame = self.cap.read()
+    # print(frame.shape)
           
     if ret == True:
       # Publish the image.
       # The 'cv2_to_imgmsg' method converts an OpenCV
+      # new_frame = cv2.resize(frame, (int(WIDTH/2), int(HEIGHT/2)))
       # image to a ROS 2 image message
       self.publisher_.publish(self.br.cv2_to_imgmsg(frame, encoding='bgr8'))
  
