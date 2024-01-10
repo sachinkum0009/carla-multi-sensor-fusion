@@ -28,6 +28,15 @@ install(TARGETS
   image_publisher_node
   DESTINATION lib/${PROJECT_NAME})
 
+# Install Python executables
+install(PROGRAMS
+  src/opencv_publisher.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(DIRECTORY launch src DESTINATION share/${PROJECT_NAME})
+
+
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
