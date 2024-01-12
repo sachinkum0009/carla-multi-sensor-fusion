@@ -4,7 +4,7 @@ import os
 import cv2
 import rclpy
 import numpy as np
-from rclpy import Node
+from rclpy.node import Node
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import PointCloud2
 from ament_index_python.packages import get_package_share_directory
@@ -19,16 +19,18 @@ class CameraAndRadarPublisher(Node):
         super().__init__("camera_and_radar_publisher")
 
         # variables
-        path = get_package_share_directory("sensor_perception_fusion")
-        img_dir = os.path.join(path, "/datasets/images/CAM_FRONT/")
-        radar_dir = os.path.join(path, "/datasets/images/RADAR_FRONT/")
+        path = get_package_share_directory("sensor_fusion_perception")
+        self.img_dir = os.path.join(path, "/datasets/images/CAM_FRONT/")
+        self.radar_dir = os.path.join(path, "/datasets/radar_points/RADAR_FRONT/")
 
-        images = os.listdir(img_dir)
-        radar_points = os.listdir(radar_dir)
+        images = os.listdir(self.img_dir)
+        radar_points = os.listdir(self.radar_dir)
         self.num_of_files = len(images)
         self.i = 0
 
         self.images_and_radar_points = list(zip(images, radar_points))
+        # print(self.images_and_radar_points)
+        # exit(1)
         # cv bridge
         self.bridge = CvBridge()
 
@@ -39,21 +41,24 @@ class CameraAndRadarPublisher(Node):
         self.create_timer(0.0333, self.timer_callback)
 
     def timer_callback(self):
-        if self.i < self.num_of_files:
+        if self.i >= self.num_of_files:
             self.i = 0
 
+        self.get_logger().info(os.path.join(self.img_dir, self.images_and_radar_points[self.i][0]))
         # read the image using opencv
-        img = cv2.read_img(self.images_and_radar_points[0][self.i])
+        img = cv2.imread(os.path.join(self.img_dir, self.images_and_radar_points[self.i][0]))
+        print(img.shape)
         # convert to ros2 using bridge
         try:
-            ros_img = self.bridge.cv2_to_imgmsg(img, encoding="rgb")
+            ros_img = self.bridge.cv2_to_imgmsg(img, encoding="bgr8")
             # publish ros Image
             self.image_publisher.publish(ros_img)
         except CvBridgeError as e:
             self.get_logger().error("Error converted  %s" % e)
 
+        self.get_logger().info(os.path.join(self.radar_dir, self.images_and_radar_points[self.i][1]))
         # read radar pointcloud
-        pc = RadarPointCloud(self.images_and_radar_points[1][self.i])
+        pc = RadarPointCloud.from_file(os.path.join(self.radar_dir, self.images_and_radar_points[self.i][1]))
         # Points live in the point sensor frame. So they need to be transformed via global to the image plane.
         # First step: transform the pointcloud to the ego vehicle frame for the timestamp of the sweep.
         # cs_record = self.nusc.get('calibrated_sensor', pointsensor['calibrated_sensor_token'])
@@ -82,13 +87,13 @@ class CameraAndRadarPublisher(Node):
         # Fifth step: actually take a "picture" of the point cloud.
         # Grab the depths (camera frame z axis points away from the camera).
         depths = pc.points[2, :]
-        print('depth', depths)
+        # print('depth', depths)
         # retreive the color from depth
         coloring = depths
 
         # Take the actual picture (matrix multiplication with camera-matrix + renormalization).
         points = view_points(pc.points[:3, :], np.array(cs_record['camera_intrinsic']), normalize=True)
-        print(points.shape)
+        # print(points.shape)
 
         # Remove points that are either outside or behind the camera. Leave a margin of 1 pixel for aesthetic reasons.
         # Also make sure points are at least 1m in front of the camera to avoid seeing the lidar points on the camera
