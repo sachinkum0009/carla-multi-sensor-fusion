@@ -3,11 +3,14 @@
 import os
 import cv2
 import rclpy
+import numpy as np
 from rclpy import Node
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import PointCloud2
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge, CvBridgeError
+from pyquaternion import Quaternion
+from nuscenes.utils.data_classes import RadarPointCloud, view_points
 
 
 class CameraAndRadarPublisher(Node):
@@ -47,6 +50,9 @@ class CameraAndRadarPublisher(Node):
             self.image_publisher.publish(ros_img)
         except CvBridgeError as e:
             self.get_logger().error("Error converted  %s" % e)
+
+        # read radar pointcloud 
+        pc = RadarPointCloud(self.images_and_radar_points[1][self.i])
 
         self.i += 1
 
