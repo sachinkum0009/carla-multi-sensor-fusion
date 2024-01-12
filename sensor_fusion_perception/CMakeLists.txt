@@ -31,6 +31,7 @@ install(TARGETS
 # Install Python executables
 install(PROGRAMS
   src/opencv_publisher.py
+  src/camera_and_radar_data_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
