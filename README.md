@@ -131,3 +131,8 @@ Done. (84.558s)
 inf : (0.1766s/frame)   nms : (0.0010s/frame)
 
 ```
+
+# Major Changes
+
+- Simulation implementation of the scenario of intersection where the vehicles will share their camera sensor data to the edge server
+- Edge server will detect the objects and find the distance with radar, lidar or deep learning model e.g. maybe with [midas](https://pytorch.org/hub/intelisl_midas_v2/)
