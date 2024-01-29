@@ -1,3 +1,6 @@
 [submodule "YOLOP"]
 	path = YOLOP
 	url = https://github.com/hustvl/YOLOP.git
+[submodule "ZoeDepth"]
+	path = ZoeDepth
+	url = https://github.com/isl-org/ZoeDepth.git
