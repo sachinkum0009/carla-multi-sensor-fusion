@@ -1,3 +1,6 @@
 [submodule "YOLOP"]
 	path = YOLOP
 	url = https://github.com/hustvl/YOLOP.git
+[submodule "ros2_numpy"]
+	path = ros2_numpy
+	url = https://github.com/Box-Robotics/ros2_numpy.git
