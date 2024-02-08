@@ -143,7 +143,7 @@
 
   mode: "peer",
   connect: {
-    endpoints: ["tcp/192.168.117.110:7447", "tcp/192.168.1.2:7447"],
+    endpoints: ["tcp/192.168.199.175:7447", "tcp/172.22.174.175:7447"],
   },
   // scouting: {
   //   gossip: {

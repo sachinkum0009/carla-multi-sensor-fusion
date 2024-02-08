@@ -6,12 +6,13 @@ import rclpy
 import numpy as np
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from sensor_msgs.msg import PointCloud2
+from sensor_msgs.msg import PointCloud2, PointField
 from ament_index_python.packages import get_package_share_directory
 from cv_bridge import CvBridge, CvBridgeError
 from pyquaternion import Quaternion
 from nuscenes.utils.data_classes import RadarPointCloud, view_points
 from sensor_msgs_py import point_cloud2
+import ros2_numpy as rnp
 
 
 class CameraAndRadarPublisher(Node):
@@ -20,8 +21,11 @@ class CameraAndRadarPublisher(Node):
 
         # variables
         path = get_package_share_directory("sensor_fusion_perception")
-        self.img_dir = os.path.join(path, "/datasets/images/CAM_FRONT/")
-        self.radar_dir = os.path.join(path, "/datasets/radar_points/RADAR_FRONT/")
+        self.get_logger().info(path)
+        self.img_dir = os.path.join(path, "datasets/images/CAM_FRONT/")
+        self.radar_dir = os.path.join(path, "datasets/radar_points/RADAR_FRONT/")
+        self.get_logger().info(self.img_dir)
+
 
         images = os.listdir(self.img_dir)
         radar_points = os.listdir(self.radar_dir)
@@ -35,16 +39,68 @@ class CameraAndRadarPublisher(Node):
         self.bridge = CvBridge()
 
         # publisher and subscriptions
-        self.image_publisher = self.create_publisher(Image, "image_raw", 10)
-        self.radar_publisher = self.create_publisher(PointCloud2, "radar", 10)
+        self.image_publisher = self.create_publisher(Image, "image_raw", 1)
+        self.radar_publisher = self.create_publisher(PointCloud2, "radar", 1)
         # timer
-        self.create_timer(0.0333, self.timer_callback)
+        self.create_timer(1, self.timer_callback)
+
+
+    def numpy_to_pointcloud2(self, points, frame_id='base_link', stamp=None):
+        
+
+        # Define fields
+        # fields = [
+        #     PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
+        #     PointField(name='y', offset=4, datatype=PointField.FLOAT32, count=1),
+        #     PointField(name='z', offset=8, datatype=PointField.FLOAT32, count=1),
+        # ]
+
+        # Create a generator expression to iterate over points and yield each x, y, z tuple
+        data = np.zeros(points.shape[1], dtype=[
+        ('x', np.float32),
+        ('y', np.float32),
+        ('z', np.float32)
+        ])
+        data['x'] = points[0, :]
+        data['y'] = points[1, :]
+        data['z'] = points[2, :]
+        # points_generator = ((float(p[0]), float(p[1]), float(p[2])) for p in points)
+
+        msg = rnp.msgify(PointCloud2, data)
+        if stamp is None:
+            stamp = self.get_clock().now().to_msg()
+
+        # Create PointCloud2 message
+        # msg = PointCloud2()
+        msg.header.frame_id = frame_id
+        msg.header.stamp = stamp
+
+        # # Pack the points into a binary buffer
+        # data = np.fromiter(points_generator, dtype=np.float32, count=len(points) * 3)
+
+        # # Reshape the data to a 2D array with 3 columns
+        # data = data.reshape((len(points), 3))
+
+        # # Convert the numpy array to a binary buffer
+        # data_buffer = data.tobytes()
+
+        # # Set the height, width, and fields in the PointCloud2 message
+        # msg.height = 1
+        # msg.width = len(points)
+        # msg.fields = fields
+        # msg.is_bigendian = False
+        # msg.point_step = 12  # 4 bytes for each x, y, z
+        # msg.row_step = msg.point_step * msg.width
+        # msg.is_dense = True  # Assumes there are no invalid points in the cloud
+        # msg.data = data_buffer
+
+        return msg
 
     def timer_callback(self):
         if self.i >= self.num_of_files:
             self.i = 0
 
-        self.get_logger().info(os.path.join(self.img_dir, self.images_and_radar_points[self.i][0]))
+        # self.get_logger().info(os.path.join(self.img_dir, self.images_and_radar_points[self.i][0]))
         # read the image using opencv
         img = cv2.imread(os.path.join(self.img_dir, self.images_and_radar_points[self.i][0]))
         print(img.shape)
@@ -56,7 +112,7 @@ class CameraAndRadarPublisher(Node):
         except CvBridgeError as e:
             self.get_logger().error("Error converted  %s" % e)
 
-        self.get_logger().info(os.path.join(self.radar_dir, self.images_and_radar_points[self.i][1]))
+        # self.get_logger().info(os.path.join(self.radar_dir, self.images_and_radar_points[self.i][1]))
         # read radar pointcloud
         pc = RadarPointCloud.from_file(os.path.join(self.radar_dir, self.images_and_radar_points[self.i][1]))
         # Points live in the point sensor frame. So they need to be transformed via global to the image plane.
@@ -86,13 +142,21 @@ class CameraAndRadarPublisher(Node):
 
         # Fifth step: actually take a "picture" of the point cloud.
         # Grab the depths (camera frame z axis points away from the camera).
-        depths = pc.points[2, :]
+        # depths = pc.points[2, :]
+        # print(pc.points)
+
+        pointcloud_msg = self.numpy_to_pointcloud2(pc.points, frame_id="front_radar")
+
+        self.radar_publisher.publish(pointcloud_msg)
+
+        
+
         # print('depth', depths)
         # retreive the color from depth
-        coloring = depths
+        # coloring = depths
 
         # Take the actual picture (matrix multiplication with camera-matrix + renormalization).
-        points = view_points(pc.points[:3, :], np.array(cs_record['camera_intrinsic']), normalize=True)
+        # points = view_points(pc.points[:3, :], np.array(cs_record['camera_intrinsic']), normalize=True)
         # print(points.shape)
 
         # Remove points that are either outside or behind the camera. Leave a margin of 1 pixel for aesthetic reasons.
@@ -114,6 +178,8 @@ class CameraAndRadarPublisher(Node):
         # all_points = np.vstack([new_points, coloring]).T
 
         self.i += 1
+
+        # print(pc.points[0])
 
 
 def main(args=None):

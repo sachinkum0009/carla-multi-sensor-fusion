@@ -12,6 +12,10 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
+find_package(ros2_numpy REQUIRED)
+find_package(geometry_msgs)
+find_package(tf2_ros)
+find_package(tf2_geometry_msgs)
 
 # Find and include OpenCV
 find_package(OpenCV REQUIRED)
@@ -24,8 +28,12 @@ add_executable(image_publisher_node src/image_publisher.cpp)
 ament_target_dependencies(image_publisher_node rclcpp sensor_msgs cv_bridge)
 target_link_libraries(image_publisher_node ${OpenCV_LIBS})
 
+add_executable(tf2_broadcaster_node src/tf2_broadcaster.cpp)
+ament_target_dependencies(tf2_broadcaster_node rclcpp geometry_msgs tf2_geometry_msgs tf2_ros)
+
 install(TARGETS
   image_publisher_node
+  tf2_broadcaster_node
   DESTINATION lib/${PROJECT_NAME})
 
 # Install Python executables
@@ -35,7 +43,7 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY launch src DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch datasets src DESTINATION share/${PROJECT_NAME})
 
 
 
