@@ -1,0 +1,4 @@
+string name
+int32 id
+sensor_fusion_perception/Dimension dimension
+geometry_msgs/Pose pose

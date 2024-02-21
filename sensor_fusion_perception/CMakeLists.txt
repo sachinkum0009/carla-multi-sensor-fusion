@@ -16,6 +16,15 @@ find_package(ros2_numpy REQUIRED)
 find_package(geometry_msgs)
 find_package(tf2_ros)
 find_package(tf2_geometry_msgs)
+find_package(rosidl_default_generators REQUIRED)
+find_package(sensor_fusion_perception)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/Dimension.msg"
+  "msg/RoadObject.msg"
+  "msg/RoadObjects.msg"
+  DEPENDENCIES builtin_interfaces geometry_msgs std_msgs
+ )
 
 # Find and include OpenCV
 find_package(OpenCV REQUIRED)
