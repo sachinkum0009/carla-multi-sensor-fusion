@@ -131,3 +131,15 @@ Done. (84.558s)
 inf : (0.1766s/frame)   nms : (0.0010s/frame)
 
 ```
+
+
+## Plan
+
+- [ ] Publisher to publish the camera stream and radar data
+    - [ ] Real Vehicle
+    - [ ] Simulation
+    
+- [ ] Implement Code to detect the object and lane segmentation 
+- [ ] Implement the Camera and Radar Fusion (SORT or DeepSORT)
+
+- [ ] Prepare the document related to this
