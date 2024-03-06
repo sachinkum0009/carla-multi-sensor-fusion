@@ -34,7 +34,11 @@ find_package(Eigen3 REQUIRED)
 include_directories(
   include
   ${EIGEN3_INCLUDE_DIRS}
+  ${tf2_INCLUDE_DIRS}
+  ${tf2_geometry_msgs_INCLUDE_DIRS}
   )
+
+include_directories(/opt/ros/rolling/include/tf2_geometry_msgs)
 
 # compile here
 add_executable(scan_matching src/scan_matching.cpp)

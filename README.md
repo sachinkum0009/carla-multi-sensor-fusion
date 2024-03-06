@@ -131,3 +131,42 @@ Done. (84.558s)
 inf : (0.1766s/frame)   nms : (0.0010s/frame)
 
 ```
+
+## Commands
+
+```bash
+conda activate ai
+
+python tools/my_demo_show_fusion.py
+```
+
+## Docker Commands
+
+```bash
+docker build -t msf:v1 .
+
+docker run -it --rm msf:v1
+```
+
+## Docker Github Container
+
+```bash
+docker login ghcr.io
+```
+
+## point clouds
+
+```bash
+array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.,
+       0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+```
+
+
+## Tasks
+
+- Radar and Camera Sensor Fusion
+  - DeepSort Algorithm Example to use with the timeseries data
+  - Detect the rectangle object in YOLOP and use the Radar or Depth Data to predict the Distance of the object.
+  - 

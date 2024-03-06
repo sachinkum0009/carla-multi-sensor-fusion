@@ -1,4 +1,5 @@
 import torch
+from time import time
 
 repo = "isl-org/ZoeDepth"
 # Zoe_N
@@ -11,8 +12,27 @@ zoe = model_zoe_n.to(DEVICE)
 
 # Local file
 from PIL import Image
-image = Image.open("test_image.png").convert("RGB")  # load
+image = Image.open("outdoor_image1.png").convert("RGB")  # load
+
+start_time = time()
 depth_numpy = zoe.infer_pil(image)  # as numpy
+estimated_time = time() - start_time
+print("estimated time is {} seconds".format(estimated_time))
+
+start_time = time()
+depth_numpy = zoe.infer_pil(image)  # as numpy
+estimated_time = time() - start_time
+print("estimated time is {} seconds".format(estimated_time))
+
+start_time = time()
+depth_numpy = zoe.infer_pil(image)  # as numpy
+estimated_time = time() - start_time
+print("estimated time is {} seconds".format(estimated_time))
+
+start_time = time()
+depth_numpy = zoe.infer_pil(image)  # as numpy
+estimated_time = time() - start_time
+print("estimated time is {} seconds".format(estimated_time))
 
 from matplotlib import pyplot as plt
 def on_click(event, depth_image):
