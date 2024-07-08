@@ -4,3 +4,6 @@
 [submodule "ros2_numpy"]
 	path = ros2_numpy
 	url = https://github.com/Box-Robotics/ros2_numpy.git
+[submodule "pointcloud_segmentation_cpp/dbscan"]
+	path = pointcloud_segmentation_cpp/dbscan
+	url = https://github.com/Eleobert/dbscan.git
