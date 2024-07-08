@@ -6,10 +6,13 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image, PointCloud2
 from sensor_msgs_py import point_cloud2 as pc2
 
-from sklearn.cluster import DBSCAN
+# from sklearn.cluster import DBSCAN
+from dbscan import DBSCAN
 import numpy as np
 import time
 from matplotlib import pyplot as plt
+
+from numba import njit
 
 
 class PointCloudSegmentationNode(Node):
@@ -17,32 +20,36 @@ class PointCloudSegmentationNode(Node):
         super().__init__("pointcloud_segmentation_node")
         self.img_sub = self.create_subscription(PointCloud2, "/velodyne_points", self.pointcloud_cb, 10)
         self.pointcloud_segment_pub = self.create_publisher(PointCloud2, "pointcloud_semantic_points", 10)
-        self.db_scan = DBSCAN(eps=0.4, min_samples=20)
+        # self.db_scan = DBSCAN(eps=0.4, min_samples=20)
         self.get_logger().info("node started")
 
     def pointcloud_cb(self, msg: PointCloud2):
         self.get_logger().info("received point cloud data")
         # pts = pc2.read_points(msg, field_names=["x", "y", "z"], skip_nans=True)
         pts = self.pointcloud2_to_array(msg)
-        
-        colors = self.segment_pointcloud(pts)
+        start_time = time.time()
+        colors = self.segment_pointcloud(points=pts)
         self.get_logger().info("clustered point cloud data")
+        elapsed_time = time.time() - start_time
+        print(elapsed_time)
         self.array_to_pointcloud2(pts, colors)
         
     def pointcloud2_to_array(self, cloud_msg):
         points = pc2.read_points(cloud_msg, field_names=["x", "y", "z"], skip_nans=True)
         return np.vstack([points['x'], points['y'], points['z']])
 
-    def segment_pointcloud(self, points: np.ndarray) -> np.ndarray:
-        self.db_scan.fit(points.T)
-        labels = self.db_scan.labels_
+    @staticmethod
+    def segment_pointcloud(points: np.ndarray) -> np.ndarray:
+        # db_scan.fit(points.T)
+        # labels = db_scan.labels_
+        labels, core_samples_mask = DBSCAN(points.T, eps=0.4, min_samples=20)
 
         # Number of clusters in labels, ignoring noise if present.
-        n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-        n_noise_ = list(labels).count(-1)
+        # n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+        # n_noise_ = list(labels).count(-1)
 
-        print("Estimated number of clusters: %d" % n_clusters_)
-        print("Estimated number of noise points: %d" % n_noise_)
+        # self.get_logger().info(f"Estimated number of clusters: {n_clusters_}")
+        # self.get_logger().info(f"Estimated number of noise points: {n_noise_}")
 
         # Define colors for each cluster label
         colors = np.zeros((len(labels), 1))  # Initialize colors array
